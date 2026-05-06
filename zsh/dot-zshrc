@@ -1,0 +1,93 @@
+if [[ $(command -v vim) && ! $(alias vim >/dev/null 2>&1) ]]; then
+  export EDITOR=$(which vim)
+  alias v=$EDITOR
+  alias vi=$EDITOR
+fi
+
+if [ $(command -v nvim) ]; then
+  export EDITOR=$(which nvim)
+  alias vim=$EDITOR
+fi
+
+alias v=$EDITOR
+alias vi=$EDITOR
+
+export SUDO_EDITOR=$EDITOR
+export VISUAL=$EDITOR
+
+export LS_COLORS='ow=01;34:tw=01;34'
+
+# Install Zinit
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+[ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
+[ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+source "${ZINIT_HOME}/zinit.zsh"
+
+# Aliases
+alias sudo='nocorrect sudo '
+alias ls='ls --color=auto --group-directories-first'
+alias ll='ls -lahF'
+alias grep='grep --color=auto'
+alias ec="$EDITOR $HOME/.zshrc"
+alias sc="source $HOME/.zshrc"
+
+# History
+HISTFILE=~/.zsh_history
+HISTSIZE=5000
+SAVEHIST=$HISTSIZE
+HISTDUP=erase
+setopt appendhistory
+setopt extended_history
+unsetopt sharehistory
+setopt hist_ignore_space
+setopt hist_ignore_all_dups
+setopt hist_save_no_dups
+setopt hist_ignore_dups
+setopt hist_find_no_dups
+
+# Prompt
+zinit ice pick"async.zsh" src"pure.zsh"
+zinit light sindresorhus/pure
+
+# ZSH Plugins
+zinit light zsh-users/zsh-syntax-highlighting
+zinit light zsh-users/zsh-completions
+zinit light zsh-users/zsh-autosuggestions
+
+# Snippets
+zinit snippet OMZP::colored-man-pages
+zinit snippet OMZP::cp
+zinit snippet OMZP::docker
+
+# Completion
+autoload -Uz compinit
+compinit
+
+# Make completion case-insensitive
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+# Use ls colors in completion menus
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+# Disable default zsh completion menu
+zstyle ':completion:*' menu no
+# Show directory preview in completion menu
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
+# Docker plugin: allow option-stacking in completions
+zstyle ':completion:*:*:docker:*' option-stacking yes
+
+# Load widgets
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+
+# Keybindings
+WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'  # Remove `/` to break words at slashes
+bindkey -e # Ensure emacs keybindings are applied
+bindkey '^A' beginning-of-line      # ⌘ + ←
+bindkey '^E' end-of-line            # ⌘ + →
+bindkey '^U' kill-whole-line        # ⌘ + ⌫
+bindkey '\eb' backward-word         # ⌥ + ←
+bindkey '\ef' forward-word          # ⌥ + →
+bindkey '\e^?' backward-kill-word   # ⌥ + ⌫
+bindkey '^[OA' up-line-or-beginning-search
+bindkey '^[OB' down-line-or-beginning-search

@@ -1,0 +1,11 @@
+# # avoid setup differences between login/non-login interactive shells
+# if [ -f "$HOME/.zshrc" ] ; then
+#   source "$HOME/.zshrc"
+# fi
+
+# source local .zprofile if it exists
+if [ -f "$HOME/.local/.zprofile" ] ; then
+  source "$HOME/.local/.zprofile"
+fi
+
+export PATH="$HOME/.local/bin:$PATH"
